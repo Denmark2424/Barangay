@@ -1,0 +1,16 @@
+@if (isLoggedIn$ | async) {
+  <div class="admin-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed$ | async">
+    <app-sidebar />
+    <main class="admin-main">
+      <router-outlet />
+    </main>
+  </div>
+} @else {
+  <div class="public-wrapper">
+    <app-navbar />
+    <main class="public-main">
+      <router-outlet />
+    </main>
+    <app-footer />
+  </div>
+}

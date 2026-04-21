@@ -1,0 +1,84 @@
+<div class="dashboard-container fade-in">
+  <!-- Header section -->
+  <header class="dashboard-header">
+    <div class="welcome-text">
+      <h1>Pending <span class="highlight">Assessments</span></h1>
+      <p>Review and assess incoming immunization requests for the community.</p>
+    </div>
+    <div class="current-date">
+      <span class="icon">📅</span>
+      <span>{{ today | date:'fullDate' }}</span>
+    </div>
+  </header>
+  <!-- Main content stack -->
+  <div class="page-content">
+    <!-- Top Filter Bar -->
+    <section class="action-hub horizontal">
+      <div class="action-grid row">
+        <div class="filter-card flex-grow">
+          <label>Search Patients</label>
+          <input type="text" class="search-input" placeholder="Search name..." [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearch($event)">
+        </div>
+      </div>
+    </section>
+
+    <!-- Table Section -->
+    <section class="activity-section">
+      <div class="section-header">
+        <h2>In-Review Requests</h2>
+        <span class="badge" *ngIf="(filteredAppointments$ | async)?.length as count">{{ count }} pending found</span>
+      </div>
+
+      <div class="table-container card">
+        <div *ngIf="!(filteredAppointments$ | async)?.length" class="empty-state">
+          <div class="icon">📋</div>
+          <p>Great! All requests have been processed.</p>
+        </div>
+
+        <table *ngIf="(filteredAppointments$ | async)?.length">
+          <thead>
+            <tr>
+              <th>Guardian / Baby Name</th>
+              <th>Contact & Email</th>
+              <th>Vaccine Requested</th>
+              <th>Preferred Date/Time</th>
+              <th>Clinic</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let app of filteredAppointments$ | async">
+              <td>
+                <div class="name-info">
+                  <strong>{{ app.guardianName }}</strong>
+                  <span>👶 {{ app.babyName }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="contact-info">
+                  {{ app.guardianContact }}
+                  <small>{{ app.guardianEmail }}</small>
+                </div>
+              </td>
+              <td><span class="badge">{{ app.vaccineRequested }}</span></td>
+              <td>
+                <div class="time-info">
+                  {{ app.preferredDate | date:'mediumDate' }}
+                  <small>{{ app.preferredTime }}</small>
+                </div>
+              </td>
+              <td>{{ app.preferredClinic }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="approve-btn" (click)="onApprove(app.id)" title="Approve">✔️</button>
+                  <button class="reject-btn" (click)="onReject(app.id)" title="Reject">❌</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>

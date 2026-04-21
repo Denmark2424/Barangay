@@ -1,0 +1,19 @@
+.footer {
+  padding: 2rem;
+  background-color: var(--bg-green);
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  margin-top: auto;
+}
+
+.links {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+}
+
+.link {
+  color: var(--accent-blue);
+  text-decoration: underline;
+  font-size: 1rem;
+}

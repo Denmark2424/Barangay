@@ -1,0 +1,91 @@
+<div class="dashboard-container fade-in">
+  <!-- Header section -->
+  <header class="dashboard-header">
+    <div class="welcome-text">
+      <h1>Manage <span class="highlight">Appointments</span></h1>
+      <p>Database of all processed immunization schedules and records.</p>
+    </div>
+    <div class="current-date">
+      <span class="icon">📅</span>
+      <span>{{ today | date:'fullDate' }}</span>
+    </div>
+  </header>
+
+  <!-- Main content stack -->
+  <div class="page-content">
+    <!-- Top Filter Bar -->
+    <section class="action-hub horizontal">
+      <div class="action-grid row">
+        <div class="filter-card flex-grow">
+          <label>Search Records</label>
+          <input type="text" class="search-input" placeholder="Search baby name..." [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearch($event)">
+        </div>
+
+        <div class="filter-card">
+          <label>Filter by Status</label>
+          <select class="status-select" [(ngModel)]="statusFilter" (ngModelChange)="onStatusChange($event)">
+            <option value="All">All Status</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table Section -->
+    <section class="activity-section">
+      <div class="section-header">
+        <h2>Appointment</h2>
+        <span class="badge" *ngIf="(filteredAppointments$ | async)?.length as count">{{ count }} records found</span>
+      </div>
+
+      <div class="table-container card">
+        <div *ngIf="!(filteredAppointments$ | async)?.length" class="empty-state">
+          <div class="icon">📁</div>
+          <p>No matching records found.</p>
+        </div>
+
+        <table *ngIf="(filteredAppointments$ | async)?.length">
+          <thead>
+            <tr>
+              <th>Guardian / Baby Name</th>
+              <th>Vaccine</th>
+              <th>Clinic</th>
+              <th>Status</th>
+              <th>Processed Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let app of filteredAppointments$ | async">
+              <td>
+                <div class="name-info">
+                  <strong>{{ app.guardianName }}</strong>
+                  <span>👶 {{ app.babyName }}</span>
+                </div>
+              </td>
+              <td><span class="badge">{{ app.vaccineRequested }}</span></td>
+              <td>{{ app.preferredClinic }}</td>
+              <td>
+                <span class="status-pill" [class.pending]="app.status === 'Pending'"
+                  [class.approved]="app.status === 'Approved'" [class.rejected]="app.status === 'Rejected'">
+                  {{ app.status }}
+                </span>
+              </td>
+              <td>{{ app.preferredDate | date:'shortDate' }}</td>
+              <td class="action-cell">
+                <div class="table-actions">
+                  <button *ngIf="app.status === 'Pending'" class="mini-btn approve" (click)="onApprove(app.id)"
+                    title="Approve">✔️</button>
+                  <button *ngIf="app.status === 'Pending'" class="mini-btn reject" (click)="onReject(app.id)"
+                    title="Reject">❌</button>
+                  <button class="mini-btn delete" (click)="onDelete(app.id)" title="Delete Record">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>

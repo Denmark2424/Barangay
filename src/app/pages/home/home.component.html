@@ -1,0 +1,100 @@
+<div class="dashboard-container fade-in">
+  <!-- Welcome Section -->
+  <header class="dashboard-header">
+    <div class="welcome-text">
+      <h1>Welcome Back, <span class="highlight">Health Worker</span></h1>
+      <p>Here is an overview of the Barangay Immunization System today.</p>
+    </div>
+    <div class="current-date">
+      <span class="icon">📅</span>
+      <span>{{ today | date:'fullDate' }}</span>
+    </div>
+  </header>
+
+  <!-- Stats Grid -->
+  <section class="stats-grid">
+    <div class="stat-card pending">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-info">
+        <h3>Pending Assessments</h3>
+        <p class="stat-value">{{ pendingCount$ | async }}</p>
+      </div>
+      <a routerLink="/pending-appointment" class="stat-link">Assess now →</a>
+    </div>
+
+    <div class="stat-card approved">
+      <div class="stat-icon">✔️</div>
+      <div class="stat-info">
+        <h3>Total Approved</h3>
+        <p class="stat-value">{{ approvedCount$ | async }}</p>
+      </div>
+      <a routerLink="/manage-appointment" class="stat-link">View records →</a>
+    </div>
+
+    <div class="stat-card rejected">
+      <div class="stat-icon">❌</div>
+      <div class="stat-info">
+        <h3>Total Rejected</h3>
+        <p class="stat-value">{{ rejectedCount$ | async }}</p>
+      </div>
+      <a routerLink="/manage-appointment" class="stat-link">View history →</a>
+    </div>
+
+    <div class="stat-card total">
+      <div class="stat-icon">📊</div>
+      <div class="stat-info">
+        <h3>Total Requests</h3>
+        <p class="stat-value">{{ totalCount$ | async }}</p>
+      </div>
+      <span class="stat-label">Lifetime Activity</span>
+    </div>
+  </section>
+
+  <!-- Main Content Grid -->
+  <div class="main-content">
+    <!-- Quick Actions -->
+    <section class="action-hub">
+      <h2>Quick Actions</h2>
+      <div class="action-grid">
+        <button routerLink="/pending-appointment" class="action-btn">
+          <span class="btn-icon">📋</span>
+          Assess Pending Requests
+        </button>
+        <button routerLink="/manage-appointment" class="action-btn">
+          <span class="btn-icon">📁</span>
+          Manage Appointment
+        </button>
+      </div>
+    </section>
+
+    <!-- Recent Activity Table -->
+    <section class="activity-section">
+      <div class="section-header">
+        <h2>Recent Immunization Logs</h2>
+        <button class="view-all">View All logs</button>
+      </div>
+      <div class="table-container card">
+        <table>
+          <thead>
+            <tr>
+              <th>Patient Name</th>
+              <th>Age/Sex</th>
+              <th>Vaccine Issued</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of chartData">
+              <td><strong>{{ row.name }}</strong></td>
+              <td>{{ row.age }} / {{ row.sex }}</td>
+              <td><span class="badge">{{ row.vaccine }}</span></td>
+              <td>{{ row.date }}</td>
+              <td><span class="status-pill active">{{ row.remarks }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>

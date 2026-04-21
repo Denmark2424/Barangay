@@ -1,0 +1,17 @@
+<div class="login-container">
+  <h1 class="login-title">BARANGAY IMMUNIZATION NOTIFICATION SYSTEM</h1>
+  <div class="login-content">
+    <form class="login-form" (ngSubmit)="handleSubmit()">
+      <input type="text" placeholder="username" class="login-input" [(ngModel)]="username" name="username" />
+      <input type="password" placeholder="password" class="login-input" [(ngModel)]="password" name="password" />
+      <button type="submit" class="login-btn">Login</button>
+      <div class="login-links">
+        <a href="#" class="login-link">Forget Password</a>
+        <a href="#" class="login-link">Sign Up</a>
+      </div>
+    </form>
+    <div class="logo-container">
+      <img src="/nurse_logo.png" alt="Nurse Logo" class="login-logo fade-in" />
+    </div>
+  </div>
+</div>

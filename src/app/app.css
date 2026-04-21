@@ -1,0 +1,33 @@
+.admin-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa; /* Consistent background for dashboard area */
+}
+
+.admin-main {
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto;
+  transition: padding-left 0.3s;
+}
+
+.public-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.public-main {
+  flex: 1;
+}
+
+/* Ensure content fills the height if it stays vertical in public mode */
+@media (max-width: 768px) {
+  .admin-wrapper {
+    flex-direction: column;
+  }
+  
+  .admin-main {
+    height: auto;
+  }
+}

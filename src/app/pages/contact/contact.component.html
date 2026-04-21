@@ -1,0 +1,83 @@
+<div class="page-bg fade-in">
+  <div class="contact-container card">
+    <div class="header">
+      <h2>Get In <span class="highlight">Touch</span></h2>
+      <p>Have questions about the Barangay Immunization Notification System? Send us a message.</p>
+    </div>
+
+    <div class="contact-content">
+      <!-- Contact Info Section -->
+      <div class="contact-info">
+        <h3>Contact Information</h3>
+        <p>Feel free to reach out to us at the clinic or send us an email. Our health workers are ready to assist you.
+        </p>
+
+        <div class="info-item">
+          <div class="icon">📍</div>
+          <div>
+            <h4>Location</h4>
+            <p>Villanueva Misamis Oriental</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="icon">📞</div>
+          <div>
+            <h4>Phone</h4>
+            <p>09919210029</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="icon">✉️</div>
+          <div>
+            <h4>Email</h4>
+            <p>villanuevahealthcenter@gmail.com</p>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="icon">🕒</div>
+          <div>
+            <h4>Operating Hours</h4>
+            <p>Monday - Friday, 8:00 AM - 5:00 PM</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="contact-form-wrapper">
+        <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" formControlName="name" placeholder="Enter your full name">
+            <span class="error" *ngIf="isSubmitted && contactForm.get('name')?.invalid">Name is required</span>
+          </div>
+
+          <div class="form-group">
+            <label>Email Address *</label>
+            <input type="email" formControlName="email" placeholder="Enter your email address">
+            <span class="error" *ngIf="isSubmitted && contactForm.get('email')?.invalid">A valid email is
+              required</span>
+          </div>
+
+          <div class="form-group">
+            <label>Subject *</label>
+            <input type="text" formControlName="subject" placeholder="What is this regarding?">
+            <span class="error" *ngIf="isSubmitted && contactForm.get('subject')?.invalid">Subject is required</span>
+          </div>
+
+          <div class="form-group">
+            <label>Message *</label>
+            <textarea formControlName="message" rows="5" placeholder="Write your message here..."></textarea>
+            <span class="error" *ngIf="isSubmitted && contactForm.get('message')?.invalid">Message is required</span>
+          </div>
+
+          <button type="submit" class="submit-btn" [class.invalid-submit]="isSubmitted && !contactForm.valid">
+            Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
