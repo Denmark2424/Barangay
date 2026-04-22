@@ -56,6 +56,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+}
+
+.filter-card.flex-grow {
   flex: 1;
 }
 
@@ -64,7 +67,6 @@
   font-weight: 700;
   color: #888;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .search-input {
@@ -165,10 +167,21 @@
   font-size: 0.95rem;
 }
 
-.status-label.completed { color: #2e7d32; }
-.status-label.first-dose { color: #1976d2; }
-.status-label.second-dose { color: #7b1fa2; }
-.status-label.pending { color: #ef6c00; }
+.status-label.completed {
+  color: #2e7d32;
+}
+
+.status-label.first-dose {
+  color: #1976d2;
+}
+
+.status-label.second-dose {
+  color: #7b1fa2;
+}
+
+.status-label.pending {
+  color: #ef6c00;
+}
 
 .empty-state {
   padding: 4rem;
@@ -182,10 +195,81 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fade-in {
   animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Pagination Hub Styling */
+.pagination-hub {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: auto;
+}
+
+.pagination-info {
+  display: none;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pag-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #475569;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pag-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
+  transform: translateY(-1px);
+}
+
+.pag-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f1f5f9;
+}
+
+.page-indicator {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.page-indicator strong {
+  color: #2563eb;
+}
+
+.pag-btn .icon {
+  font-size: 0.8rem;
 }

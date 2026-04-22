@@ -39,16 +39,16 @@
     <section class="activity-section">
       <div class="section-header">
         <h2>Appointment</h2>
-        <span class="badge" *ngIf="(filteredAppointments$ | async)?.length as count">{{ count }} records found</span>
+        <span class="badge" *ngIf="totalItems > 0">{{ totalItems }} records found</span>
       </div>
 
       <div class="table-container card">
-        <div *ngIf="!(filteredAppointments$ | async)?.length" class="empty-state">
+        <div *ngIf="!(paginatedAppointments$ | async)?.length" class="empty-state">
           <div class="icon">📁</div>
           <p>No matching records found.</p>
         </div>
 
-        <table *ngIf="(filteredAppointments$ | async)?.length">
+        <table *ngIf="(paginatedAppointments$ | async)?.length">
           <thead>
             <tr>
               <th>Baby Name</th>
@@ -61,7 +61,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let app of filteredAppointments$ | async">
+            <tr *ngFor="let app of paginatedAppointments$ | async">
               <td><strong>{{ app.babyName }}</strong></td>
               <td><span class="badge">{{ app.vaccineRequested }}</span></td>
               <td>{{ app.preferredClinic }}</td>
@@ -89,6 +89,24 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-hub" *ngIf="totalItems > 0">
+          <div class="pagination-info">
+            Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> - 
+            <strong>{{ mathMin(currentPage * pageSize, totalItems) }}</strong> of 
+            <strong>{{ totalItems }}</strong> records
+          </div>
+          <div class="pagination-controls">
+            <button class="pag-btn" [disabled]="currentPage === 1" (click)="prevPage()">
+              <span class="icon">◀</span> Previous
+            </button>
+            <span class="page-indicator">Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong></span>
+            <button class="pag-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+              Next <span class="icon">▶</span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   </div>

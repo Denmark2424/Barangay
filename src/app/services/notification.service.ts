@@ -1,43 +1,35 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
-  // SMS CONFIG (IPROG)
-  private readonly API_KEY = 'b24d6bb21f88ff6a0450a1a8bbb4bcb60834b358';
-  private readonly SMS_URL = 'https://www.iprogsms.com/api/v1/sms_messages';
+  // SMS CONFIG (SEMAPHORE)
+  private readonly API_KEY = 'd1ff496846440d66f0f55f8dcd4fbaa5';
+  private readonly SMS_URL = 'https://api.semaphore.co/api/v4/messages';
 
   constructor(private http: HttpClient) { }
 
   /**
-   * Sends an SMS using IPROG SMS API (via Proxy to bypass CORS)
+   * Sends an SMS using Semaphore API (via Proxy to bypass CORS)
    */
   sendSms(mobileNumber: string, message: string): Observable<any> {
-    // Convert 09XXXXXXXXX to 639XXXXXXXXX
-    let formattedNumber = mobileNumber;
-    if (mobileNumber.startsWith('0')) {
-      formattedNumber = '63' + mobileNumber.substring(1);
-    }
-
-    // Use the official IPROG endpoint
-    const targetUrl = 'https://www.iprogsms.com/api/v1/sms_messages';
-    
-    // Prefix with the proxy to bypass CORS
+    const targetUrl = `https://api.semaphore.co/api/v4/messages`;
     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
 
-    const payload = {
-      api_token: this.API_KEY,
-      phone_number: formattedNumber,
-      message: message
-    };
+    // Semaphore expects form-encoded data
+    const body = new HttpParams()
+      .set('apikey', this.API_KEY)
+      .set('number', mobileNumber)
+      .set('message', message);
 
-    console.log(`🚀 Attempting to send SMS POST to ${formattedNumber} (via Proxy)...`);
+    console.log(`🚀 Attempting to send Semaphore SMS to ${mobileNumber} (via Form Data)...`);
     
-    // We must use POST as per IPROG documentation
-    return this.http.post(proxyUrl, payload);
+    return this.http.post(proxyUrl, body.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
   }
 
   /**
@@ -45,15 +37,24 @@ export class NotificationService {
    */
   notifyAppointmentStatus(contact: string, name: string, status: 'Approved' | 'Rejected') {
     const message = status === 'Approved'
-      ? `Hi ${name}, your immunization appointment has been APPROVED. Please be at the clinic on your scheduled date. Thank you!`
+      ? `Hi ${name}, your immunization appointment has been APPROVED. Please wait for the admin to schedule your date. Thank you!`
       : `Hi ${name}, your immunization appointment has been REJECTED. Please contact your Barangay Health Center for clarification. Thank you!`;
 
-    // Send SMS
     this.sendSms(contact, message).subscribe({
-      next: (res) => console.log('✅ SMS API Response:', res),
-      error: (err) => {
-        console.error('❌ SMS Sending Failed!', err);
-      }
+      next: (res) => console.log('✅ Status SMS Sent:', res),
+      error: (err) => console.error('❌ Status SMS Failed!', err)
+    });
+  }
+
+  /**
+   * Helper to send schedule confirmation via SMS
+   */
+  notifyAppointmentSchedule(contact: string, name: string, date: string, time: string, clinic: string) {
+    const message = `Hi ${name}, your immunization appointment is scheduled on ${date} at ${time} (${clinic}). See you there!`;
+
+    this.sendSms(contact, message).subscribe({
+      next: (res) => console.log('✅ Schedule SMS Sent:', res),
+      error: (err) => console.error('❌ Schedule SMS Failed!', err)
     });
   }
 }

@@ -37,6 +37,12 @@ export class SmsNotificationComponent implements OnInit {
   viewMode: 'history' | 'contacts' = 'history';
   contactBarangayFilter: string = 'All';
 
+  // Pagination State
+  pageSize: number = 5;
+  currentPageHistory: number = 1;
+  currentPageDrafts: number = 1;
+  currentPageContacts: number = 1;
+
   barangays: string[] = [
     'Balacanas', 'Dayawan', 'Imelda', 'Katipunan', 'Kimaya', 
     'Looc', 'Poblacion 1', 'Poblacion 2', 'Poblacion 3', 
@@ -57,11 +63,50 @@ export class SmsNotificationComponent implements OnInit {
   history: SMSHistory[] = [];
   contacts: Contact[] = [];
 
+  // --- PAGINATED GETTERS ---
+
+  get sentItems(): SMSHistory[] {
+    return this.history.filter(h => h.status === 'Sent');
+  }
+
+  get draftItems(): SMSHistory[] {
+    return this.history.filter(h => h.status === 'Draft');
+  }
+
+  get paginatedHistory(): SMSHistory[] {
+    const start = (this.currentPageHistory - 1) * this.pageSize;
+    return this.sentItems.slice(start, start + this.pageSize);
+  }
+
+  get paginatedDrafts(): SMSHistory[] {
+    const start = (this.currentPageDrafts - 1) * this.pageSize;
+    return this.draftItems.slice(start, start + this.pageSize);
+  }
+
   get filteredContacts(): Contact[] {
-    if (this.contactBarangayFilter === 'All') {
-      return this.contacts;
-    }
-    return this.contacts.filter(c => c.barangay === this.contactBarangayFilter);
+    const base = this.contactBarangayFilter === 'All' 
+      ? this.contacts 
+      : this.contacts.filter(c => c.barangay === this.contactBarangayFilter);
+    return base;
+  }
+
+  get paginatedContacts(): Contact[] {
+    const start = (this.currentPageContacts - 1) * this.pageSize;
+    return this.filteredContacts.slice(start, start + this.pageSize);
+  }
+
+  // --- TOTAL PAGES HELPERS ---
+
+  get totalPagesHistory(): number {
+    return Math.ceil(this.sentItems.length / this.pageSize) || 1;
+  }
+
+  get totalPagesDrafts(): number {
+    return Math.ceil(this.draftItems.length / this.pageSize) || 1;
+  }
+
+  get totalPagesContacts(): number {
+    return Math.ceil(this.filteredContacts.length / this.pageSize) || 1;
   }
 
   constructor() {}
@@ -80,6 +125,29 @@ export class SmsNotificationComponent implements OnInit {
     const savedContacts = localStorage.getItem('sms_contacts');
     if (savedHistory) this.history = JSON.parse(savedHistory);
     if (savedContacts) this.contacts = JSON.parse(savedContacts);
+  }
+
+  // --- PAGINATION ACTIONS ---
+
+  nextPage(type: 'history' | 'drafts' | 'contacts') {
+    if (type === 'history' && this.currentPageHistory < this.totalPagesHistory) this.currentPageHistory++;
+    if (type === 'drafts' && this.currentPageDrafts < this.totalPagesDrafts) this.currentPageDrafts++;
+    if (type === 'contacts' && this.currentPageContacts < this.totalPagesContacts) this.currentPageContacts++;
+  }
+
+  prevPage(type: 'history' | 'drafts' | 'contacts') {
+    if (type === 'history' && this.currentPageHistory > 1) this.currentPageHistory--;
+    if (type === 'drafts' && this.currentPageDrafts > 1) this.currentPageDrafts--;
+    if (type === 'contacts' && this.currentPageContacts > 1) this.currentPageContacts--;
+  }
+
+  mathMin(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  onFilterChange(value: string) {
+    this.contactBarangayFilter = value;
+    this.currentPageContacts = 1;
   }
 
   onCreateNotification() {

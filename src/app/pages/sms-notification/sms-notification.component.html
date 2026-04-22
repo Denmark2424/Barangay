@@ -19,57 +19,99 @@
         Contacts</button>
     </div>
 
-    <!-- SMS History Section -->
+    <!-- SMS History & Drafts Section -->
     <section class="activity-section" *ngIf="viewMode === 'history'">
+      <!-- SENT HISTORY -->
       <div class="section-header">
         <div class="header-info">
-          <h2>SMS History & Drafts</h2>
-          <span class="sub-label">{{ history.length }} notification{{ history.length !== 1 ? 's' : '' }} logged</span>
+          <h2>Sent History</h2>
+          <span class="sub-label">{{ sentItems.length }} messages sent</span>
         </div>
       </div>
 
       <div class="table-container card">
-        <div *ngIf="!history.length" class="empty-state">
-          <div class="icon">💬</div>
-          <h3>No notifications yet</h3>
-          <p>Create your first notification to get started</p>
+        <div *ngIf="!sentItems.length" class="empty-state">
+          <div class="icon">✈️</div>
+          <h3>No sent messages</h3>
+          <p>Messages you send will appear here.</p>
         </div>
 
-        <table *ngIf="history.length" class="sms-table">
+        <table *ngIf="sentItems.length" class="sms-table">
           <thead>
             <tr>
               <th>TITLE</th>
               <th>MESSAGE</th>
-              <th>TARGET BARANGAYS</th>
+              <th>TARGETS</th>
               <th>RECIPIENTS</th>
-              <th>STATUS</th>
-              <th>CREATED</th>
-              <th>ACTIONS</th>
+              <th>SENT DATE</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of history">
+            <tr *ngFor="let item of paginatedHistory">
               <td class="item-title">{{ item.title }}</td>
               <td class="item-message">
                 <div class="message-preview">{{ item.message }}</div>
               </td>
               <td>{{ item.targetBarangays }}</td>
               <td>{{ item.recipients }}</td>
-              <td>
-                <div class="status-pill" [ngClass]="item.status.toLowerCase()">
-                  {{ item.status }}
-                </div>
+              <td class="date-info">{{ item.sentAt || item.createdAt }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Sent History Pagination -->
+        <div class="pagination-hub" *ngIf="sentItems.length > 0">
+          <div class="pagination-controls">
+            <button class="pag-btn" [disabled]="currentPageHistory === 1" (click)="prevPage('history')">
+              <span class="icon">◀</span> Previous
+            </button>
+            <span class="page-indicator">Page <strong>{{ currentPageHistory }}</strong> of <strong>{{ totalPagesHistory }}</strong></span>
+            <button class="pag-btn" [disabled]="currentPageHistory === totalPagesHistory" (click)="nextPage('history')">
+              Next <span class="icon">▶</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRAFTS -->
+      <div class="section-header" style="margin-top: 3rem;">
+        <div class="header-info">
+          <h2>Drafts</h2>
+          <span class="sub-label">{{ draftItems.length }} drafts saved</span>
+        </div>
+      </div>
+
+      <div class="table-container card">
+        <div *ngIf="!draftItems.length" class="empty-state">
+          <div class="icon">💾</div>
+          <h3>No drafts</h3>
+          <p>Unsent notifications will appear here.</p>
+        </div>
+
+        <table *ngIf="draftItems.length" class="sms-table">
+          <thead>
+            <tr>
+              <th>TITLE</th>
+              <th>MESSAGE</th>
+              <th>TARGETS</th>
+              <th>CREATED</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of paginatedDrafts">
+              <td class="item-title">{{ item.title }}</td>
+              <td class="item-message">
+                <div class="message-preview">{{ item.message }}</div>
               </td>
-              <td class="date-info">
-                {{ item.createdAt }}
-                <div class="sent-at" *ngIf="item.sentAt">Sent: {{ item.sentAt }}</div>
-              </td>
+              <td>{{ item.targetBarangays }}</td>
+              <td class="date-info">{{ item.createdAt }}</td>
               <td>
                 <div class="table-actions">
-                  <button *ngIf="item.status === 'Draft'" class="edit-btn" (click)="onEdit(item.id)">
+                  <button class="edit-btn" (click)="onEdit(item.id)">
                     <span class="icon">✏️</span> Edit
                   </button>
-                  <button *ngIf="item.status === 'Draft'" class="send-btn" (click)="onSend(item.id)">
+                  <button class="send-btn" (click)="onSend(item.id)">
                     <span class="icon">✈️</span> Send
                   </button>
                   <button class="delete-btn" (click)="onDeleteHistory(item.id)">
@@ -80,6 +122,19 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Drafts Pagination -->
+        <div class="pagination-hub" *ngIf="draftItems.length > 0">
+          <div class="pagination-controls">
+            <button class="pag-btn" [disabled]="currentPageDrafts === 1" (click)="prevPage('drafts')">
+              <span class="icon">◀</span> Previous
+            </button>
+            <span class="page-indicator">Page <strong>{{ currentPageDrafts }}</strong> of <strong>{{ totalPagesDrafts }}</strong></span>
+            <button class="pag-btn" [disabled]="currentPageDrafts === totalPagesDrafts" (click)="nextPage('drafts')">
+              Next <span class="icon">▶</span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -98,7 +153,7 @@
       <div class="filter-bar card">
         <div class="filter-group">
           <label>Filter by Barangay:</label>
-          <select class="form-select" [(ngModel)]="contactBarangayFilter">
+          <select class="form-select" [ngModel]="contactBarangayFilter" (ngModelChange)="onFilterChange($event)">
             <option value="All">All Barangays</option>
             <option *ngFor="let b of barangays" [value]="b">{{ b }}</option>
           </select>
@@ -120,7 +175,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let contact of filteredContacts">
+            <tr *ngFor="let contact of paginatedContacts">
               <td>{{ contact.barangay }}</td>
               <td class="phone-number">{{ contact.mobileNumber }}</td>
               <td>{{ contact.dateAdded }}</td>
@@ -132,6 +187,19 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Contacts Pagination -->
+        <div class="pagination-hub" *ngIf="filteredContacts.length > 0">
+          <div class="pagination-controls">
+            <button class="pag-btn" [disabled]="currentPageContacts === 1" (click)="prevPage('contacts')">
+              <span class="icon">◀</span> Previous
+            </button>
+            <span class="page-indicator">Page <strong>{{ currentPageContacts }}</strong> of <strong>{{ totalPagesContacts }}</strong></span>
+            <button class="pag-btn" [disabled]="currentPageContacts === totalPagesContacts" (click)="nextPage('contacts')">
+              Next <span class="icon">▶</span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   </div>

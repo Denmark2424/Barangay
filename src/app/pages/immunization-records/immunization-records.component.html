@@ -13,15 +13,34 @@
 
   <!-- Main content stack -->
   <div class="page-content">
-    <!-- Top Search Bar -->
-    <section class="action-hub horizontal">
-      <div class="action-grid row">
-        <div class="filter-card flex-grow">
-          <label>Search Records</label>
-          <input type="text" class="search-input" placeholder="Search patient name..." [(ngModel)]="searchTerm"
-            (ngModelChange)="onSearch($event)">
-        </div>
-        <!-- Filter removed as requested -->
+    <!-- Top Filter Hub (Matching horizontal layout like in the picture) -->
+    <section class="action-hub horizontal"
+      style="display: flex; gap: 1.5rem; align-items: flex-start; margin-bottom: 2rem;">
+      <!-- Search Card -->
+      <div class="filter-card"
+        style="flex: 1; padding: 1.2rem; border-radius: 12px; border: 1px solid #f1f5f9; background: white; box-shadow: var(--shadow-sm);">
+        <label
+          style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 0.8rem; display: block; text-transform: uppercase;">Search
+          Records</label>
+        <input type="text" class="search-input" placeholder="Search baby name..." [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearch($event)"
+          style="padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px; width: 100%;">
+      </div>
+
+      <!-- Status Filter Card (Compact) -->
+      <div class="filter-card"
+        style="width: 220px; padding: 1.2rem; border-radius: 12px; border: 1px solid #f1f5f9; background: white; box-shadow: var(--shadow-sm);">
+        <label
+          style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 0.8rem; display: block; text-transform: uppercase;">Filter
+          by Status</label>
+        <select class="search-input" [ngModel]="statusFilter" (ngModelChange)="onStatusChange($event)"
+          style="padding: 0.8rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; width: 100%; cursor: pointer;">
+          <option value="All">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="First dose">First dose</option>
+          <option value="Second dose">Second dose</option>
+          <option value="Completed">Completed</option>
+        </select>
       </div>
     </section>
 
@@ -29,16 +48,16 @@
     <section class="activity-section">
       <div class="section-header">
         <h2>Patient Records</h2>
-        <span class="badge" *ngIf="(filteredRecords$ | async)?.length as count">{{ count }} records found</span>
+        <span class="badge" *ngIf="totalItems > 0">{{ totalItems }} records found</span>
       </div>
 
       <div class="table-container card">
-        <div *ngIf="!(filteredRecords$ | async)?.length" class="empty-state">
+        <div *ngIf="!(paginatedRecords$ | async)?.length" class="empty-state">
           <div class="icon">📒</div>
           <p>No immunization records found.</p>
         </div>
 
-        <table *ngIf="(filteredRecords$ | async)?.length" class="records-table">
+        <table *ngIf="(paginatedRecords$ | async)?.length" class="records-table">
           <thead>
             <tr>
               <th>Patient Name</th>
@@ -49,7 +68,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let record of filteredRecords$ | async">
+            <tr *ngFor="let record of paginatedRecords$ | async">
               <td class="patient-name">{{ record.babyName }}</td>
               <td class="age-sex">{{ record.babyAge }} / {{ record.babySex }}</td>
               <td>
@@ -64,6 +83,25 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-hub" *ngIf="totalItems > 0">
+          <div class="pagination-info">
+            Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> -
+            <strong>{{ mathMin(currentPage * pageSize, totalItems) }}</strong> of
+            <strong>{{ totalItems }}</strong> records
+          </div>
+          <div class="pagination-controls">
+            <button class="pag-btn" [disabled]="currentPage === 1" (click)="prevPage()">
+              <span class="icon">◀</span> Previous
+            </button>
+            <span class="page-indicator">Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages
+                }}</strong></span>
+            <button class="pag-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+              Next <span class="icon">▶</span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   </div>

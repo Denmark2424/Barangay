@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { AppointmentService, Appointment } from '../../services/appointment.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-manage-appointment',
@@ -13,16 +14,24 @@ import { AppointmentService, Appointment } from '../../services/appointment.serv
   styleUrls: ['./manage-appointment.component.css']
 })
 export class ManageAppointmentComponent implements OnInit {
-  filteredAppointments$: Observable<Appointment[]>;
+  paginatedAppointments$: Observable<Appointment[]>;
   private searchSubject = new BehaviorSubject<string>('');
   private statusSubject = new BehaviorSubject<string>('All');
+  private pageSubject = new BehaviorSubject<number>(1);
   
   searchTerm: string = '';
   statusFilter: string = 'All';
   today: Date = new Date();
+  
+  currentPage: number = 1;
+  pageSize: number = 5;
+  totalItems: number = 0;
 
-  constructor(private appointmentService: AppointmentService) {
-    this.filteredAppointments$ = combineLatest([
+  constructor(
+    private appointmentService: AppointmentService,
+    private notificationService: NotificationService
+  ) {
+    const filteredBase$ = combineLatest([
       this.appointmentService.getAppointments(),
       this.searchSubject.asObservable().pipe(startWith('')),
       this.statusSubject.asObservable().pipe(startWith('All'))
@@ -30,12 +39,10 @@ export class ManageAppointmentComponent implements OnInit {
       map(([apps, search, status]) => {
         let filtered = apps.filter(a => a.reviewed && a.status !== 'Rejected' && !a.archived && a.status !== 'Completed');
         
-        // Status Filter
         if (status !== 'All') {
           filtered = filtered.filter(a => a.status === status);
         }
 
-        // Search Filter
         if (search) {
           const s = search.toLowerCase();
           filtered = filtered.filter(a => 
@@ -44,17 +51,54 @@ export class ManageAppointmentComponent implements OnInit {
           );
         }
         
+        this.totalItems = filtered.length;
         return filtered;
+      })
+    );
+
+    this.paginatedAppointments$ = combineLatest([
+      filteredBase$,
+      this.pageSubject.asObservable()
+    ]).pipe(
+      map(([filtered, page]) => {
+        const startIndex = (page - 1) * this.pageSize;
+        return filtered.slice(startIndex, startIndex + this.pageSize);
       })
     );
   }
 
   onSearch(value: string) {
+    this.currentPage = 1;
+    this.pageSubject.next(1);
     this.searchSubject.next(value);
   }
 
   onStatusChange(value: string) {
+    this.currentPage = 1;
+    this.pageSubject.next(1);
     this.statusSubject.next(value);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.pageSize) || 1;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.pageSubject.next(this.currentPage);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.pageSubject.next(this.currentPage);
+    }
+  }
+
+  mathMin(a: number, b: number): number {
+    return Math.min(a, b);
   }
 
   ngOnInit(): void {}
@@ -68,11 +112,8 @@ export class ManageAppointmentComponent implements OnInit {
     this.appointmentService.updateAppointmentStatus(id, select.value as any);
   }
 
-
-
   allowOnlyNumbers(event: KeyboardEvent) {
     const charCode = event.which ? event.which : event.keyCode;
-    // Allow only numbers (48-57)
     if (charCode < 48 || charCode > 57) {
       event.preventDefault();
     }
@@ -82,15 +123,13 @@ export class ManageAppointmentComponent implements OnInit {
   selectedAppointment: Appointment | null = null;
 
   onEdit(id: string) {
-    // Find the exact appointment by ID from local storage (or service)
     this.appointmentService.getAppointments().subscribe(apps => {
       const found = apps.find(a => a.id === id);
       if (found) {
-        // Create a copy to edit without mutating the original list immediately
         this.selectedAppointment = { ...found };
         this.isEditModalOpen = true;
       }
-    }).unsubscribe(); // Immediately unsubscribe after getting current value since BehaviorSubject is synchronous
+    }).unsubscribe(); 
   }
 
   closeEditModal() {
@@ -100,7 +139,22 @@ export class ManageAppointmentComponent implements OnInit {
 
   saveEdit() {
     if (this.selectedAppointment) {
+      const hasDate = !!this.selectedAppointment.preferredDate;
+      const hasTime = !!this.selectedAppointment.preferredTime;
+      const hasClinic = !!this.selectedAppointment.preferredClinic;
+
       this.appointmentService.updateAppointmentDetails(this.selectedAppointment.id, this.selectedAppointment);
+
+      if (hasDate && hasTime && hasClinic) {
+        this.notificationService.notifyAppointmentSchedule(
+          this.selectedAppointment.guardianContact,
+          this.selectedAppointment.babyName,
+          this.selectedAppointment.preferredDate,
+          this.selectedAppointment.preferredTime,
+          this.selectedAppointment.preferredClinic
+        );
+      }
+
       this.closeEditModal();
     }
   }

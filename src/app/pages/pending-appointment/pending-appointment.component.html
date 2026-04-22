@@ -12,13 +12,30 @@
   </header>
   <!-- Main content stack -->
   <div class="page-content">
-    <!-- Top Filter Bar -->
-    <section class="action-hub" style="display: flex; flex-direction: column; gap: 1.5rem;">
-      <div class="filter-card">
-        <label>Search Patients</label>
+    <!-- Top Action Hub (Horizontal layout like in the picture) -->
+    <section class="action-hub horizontal" style="display: flex; gap: 1.5rem; align-items: flex-start; margin-bottom: 2rem;">
+      <!-- Search Card -->
+      <div class="filter-card" style="flex: 1; padding: 1.2rem; border-radius: 12px; border: 1px solid #f1f5f9; background: white; box-shadow: var(--shadow-sm);">
+        <label style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 0.8rem; display: block; text-transform: uppercase;">Search Patients</label>
         <input type="text" class="search-input" placeholder="Search name..." [(ngModel)]="searchTerm"
-          (ngModelChange)="onSearch($event)">
+          (ngModelChange)="onSearch($event)" style="padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 8px; width: 100%;">
       </div>
+
+      <!-- Status Filter Card (Compact) -->
+      <div class="filter-card" *ngIf="viewFilter === 'history'" 
+           style="width: 220px; padding: 1.2rem; border-radius: 12px; border: 1px solid #f1f5f9; background: white; box-shadow: var(--shadow-sm);">
+        <label style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 0.8rem; display: block; text-transform: uppercase;">Filter by Status</label>
+        <select class="search-input" [ngModel]="historyStatusFilter" (ngModelChange)="onHistoryStatusChange($event)"
+          style="padding: 0.8rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; width: 100%; cursor: pointer;">
+          <option value="All">All History</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs Section -->
+    <section class="action-hub horizontal" style="margin-bottom: 2rem;">
       <div class="filter-pills-container" style="display: inline-flex; align-items: center; justify-content: flex-start; gap: 0.5rem; background: white; border-radius: 30px; padding: 0.5rem; box-shadow: var(--shadow-sm); width: max-content;">
         <button class="pill-btn" [class.active]="viewFilter === 'pending'" (click)="onViewFilterChange('pending')">Pending Appointments</button>
         <button class="pill-btn" [class.active]="viewFilter === 'history'" (click)="onViewFilterChange('history')">Appointments History</button>
@@ -29,16 +46,16 @@
     <section class="activity-section">
       <div class="section-header">
         <h2>{{ viewFilter === 'pending' ? 'In-Review Requests' : 'Appointments History' }}</h2>
-        <span class="badge" *ngIf="(filteredAppointments$ | async)?.length as count">{{ count }} {{ viewFilter === 'pending' ? 'pending' : 'historical' }} found</span>
+        <span class="badge" *ngIf="totalItems > 0">{{ totalItems }} records found</span>
       </div>
 
       <div class="table-container card">
-        <div *ngIf="!(filteredAppointments$ | async)?.length" class="empty-state">
+        <div *ngIf="!(paginatedAppointments$ | async)?.length" class="empty-state">
           <div class="icon">📋</div>
           <p>Great! All requests have been processed.</p>
         </div>
 
-        <table *ngIf="(filteredAppointments$ | async)?.length">
+        <table *ngIf="(paginatedAppointments$ | async)?.length">
           <thead>
             <tr>
               <th>Guardian Name</th>
@@ -49,7 +66,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let app of filteredAppointments$ | async">
+            <tr *ngFor="let app of paginatedAppointments$ | async">
               <td class="guardian-name"><strong>{{ app.guardianName }}</strong></td>
               <td class="baby-name">{{ app.babyName }}</td>
               <td class="contact-num">{{ app.guardianContact }}</td>
@@ -71,6 +88,24 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-hub" *ngIf="totalItems > 0">
+          <div class="pagination-info">
+            Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> - 
+            <strong>{{ mathMin(currentPage * pageSize, totalItems) }}</strong> of 
+            <strong>{{ totalItems }}</strong> records
+          </div>
+          <div class="pagination-controls">
+            <button class="pag-btn" [disabled]="currentPage === 1" (click)="prevPage()">
+              <span class="icon">◀</span> Previous
+            </button>
+            <span class="page-indicator">Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong></span>
+            <button class="pag-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+              Next <span class="icon">▶</span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   </div>

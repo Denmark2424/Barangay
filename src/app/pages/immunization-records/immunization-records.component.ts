@@ -13,19 +13,31 @@ import { AppointmentService, Appointment } from '../../services/appointment.serv
   styleUrls: ['./immunization-records.component.css']
 })
 export class ImmunizationRecordsComponent implements OnInit {
-  filteredRecords$: Observable<Appointment[]>;
+  paginatedRecords$: Observable<Appointment[]>;
   private searchSubject = new BehaviorSubject<string>('');
+  private statusSubject = new BehaviorSubject<string>('All');
+  private pageSubject = new BehaviorSubject<number>(1);
+  
   searchTerm: string = '';
+  statusFilter: string = 'All';
   today: Date = new Date();
+  
+  currentPage: number = 1;
+  pageSize: number = 5;
+  totalItems: number = 0;
 
   constructor(private appointmentService: AppointmentService) {
-    this.filteredRecords$ = combineLatest([
+    const filteredBase$ = combineLatest([
       this.appointmentService.getAppointments(),
-      this.searchSubject.asObservable().pipe(startWith(''))
+      this.searchSubject.asObservable().pipe(startWith('')),
+      this.statusSubject.asObservable().pipe(startWith('All'))
     ]).pipe(
-      map(([apps, search]) => {
-        // Show all processed records (not rejected)
+      map(([apps, search, status]) => {
         let filtered = apps.filter(a => a.reviewed && a.status !== 'Rejected');
+
+        if (status !== 'All') {
+          filtered = filtered.filter(a => a.status === status);
+        }
 
         if (search) {
           const s = search.toLowerCase();
@@ -34,7 +46,18 @@ export class ImmunizationRecordsComponent implements OnInit {
             a.guardianName.toLowerCase().includes(s)
           );
         }
+        this.totalItems = filtered.length;
         return filtered;
+      })
+    );
+
+    this.paginatedRecords$ = combineLatest([
+      filteredBase$,
+      this.pageSubject.asObservable()
+    ]).pipe(
+      map(([filtered, page]) => {
+        const startIndex = (page - 1) * this.pageSize;
+        return filtered.slice(startIndex, startIndex + this.pageSize);
       })
     );
   }
@@ -42,7 +65,38 @@ export class ImmunizationRecordsComponent implements OnInit {
   ngOnInit(): void {}
 
   onSearch(value: string) {
+    this.currentPage = 1;
+    this.pageSubject.next(1);
     this.searchSubject.next(value);
+  }
+
+  onStatusChange(value: string) {
+    this.currentPage = 1;
+    this.pageSubject.next(1);
+    this.statusFilter = value;
+    this.statusSubject.next(value);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.pageSize) || 1;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.pageSubject.next(this.currentPage);
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.pageSubject.next(this.currentPage);
+    }
+  }
+
+  mathMin(a: number, b: number): number {
+    return Math.min(a, b);
   }
 
   getStatusClass(status: string): string {
