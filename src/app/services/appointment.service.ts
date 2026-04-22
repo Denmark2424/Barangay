@@ -78,6 +78,10 @@ export class AppointmentService {
     return this.appointmentsSubject.asObservable();
   }
 
+  getAppointmentById(id: string): Appointment | undefined {
+    return this.loadAppointments().find(a => a.id === id);
+  }
+
   addAppointment(appointment: Omit<Appointment, 'id' | 'status' | 'createdAt'>) {
     const appointments = this.loadAppointments();
     const newAppointment: Appointment = {

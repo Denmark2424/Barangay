@@ -28,12 +28,7 @@
               *ngIf="isSubmitted && appointmentForm.get('guardianContact')?.hasError('pattern')">Number must be exactly
               11 digits</span>
           </div>
-          <div class="form-group">
-            <label>Email Address *</label>
-            <input type="email" formControlName="guardianEmail" placeholder="">
-            <span class="error" *ngIf="isSubmitted && appointmentForm.get('guardianEmail')?.invalid">Valid email is
-              required</span>
-          </div>
+
           <div class="form-group">
             <label>Relationship to Baby *</label>
             <select formControlName="relationship">

@@ -5,6 +5,7 @@ import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
 import { AppointmentService, Appointment } from '../../services/appointment.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-pending-appointment',
@@ -26,7 +27,11 @@ export class PendingAppointmentComponent implements OnInit {
   approvedCount$: Observable<number>;
   rejectedCount$: Observable<number>;
 
-  constructor(private appointmentService: AppointmentService, private route: ActivatedRoute) {
+  constructor(
+    private appointmentService: AppointmentService, 
+    private route: ActivatedRoute,
+    private notificationService: NotificationService
+  ) {
     const apps$ = this.appointmentService.getAppointments();
     
     this.pendingCount$ = apps$.pipe(map(apps => apps.filter(a => a.status === 'Pending').length));
@@ -70,15 +75,35 @@ export class PendingAppointmentComponent implements OnInit {
 
   onApprove(id: string) {
     if (confirm('Approve this request and move it to the management database?')) {
-      this.appointmentService.updateAppointmentStatus(id, 'Pending');
-      this.appointmentService.markAsReviewed(id);
+      const app = this.appointmentService.getAppointmentById(id);
+      if (app) {
+        this.appointmentService.updateAppointmentStatus(id, 'Pending');
+        this.appointmentService.markAsReviewed(id);
+        
+        // Automatic Notifications
+        this.notificationService.notifyAppointmentStatus(
+          app.guardianContact,
+          app.babyName,
+          'Approved'
+        );
+      }
     }
   }
 
   onReject(id: string) {
     if (confirm('Reject this request and move it to the records?')) {
-      this.appointmentService.updateAppointmentStatus(id, 'Rejected');
-      this.appointmentService.markAsReviewed(id);
+      const app = this.appointmentService.getAppointmentById(id);
+      if (app) {
+        this.appointmentService.updateAppointmentStatus(id, 'Rejected');
+        this.appointmentService.markAsReviewed(id);
+
+        // Automatic Notifications
+        this.notificationService.notifyAppointmentStatus(
+          app.guardianContact,
+          app.babyName,
+          'Rejected'
+        );
+      }
     }
   }
 

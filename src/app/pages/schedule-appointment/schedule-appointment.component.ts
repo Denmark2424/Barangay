@@ -23,7 +23,7 @@ export class ScheduleAppointmentComponent {
     this.appointmentForm = this.fb.group({
       guardianName: ['', Validators.required],
       guardianContact: ['', [Validators.required, Validators.pattern(/^[0-9]{11}$/)]],
-      guardianEmail: ['', [Validators.required, Validators.email]],
+
       relationship: ['', Validators.required],
       babyName: ['', Validators.required],
       babyAge: ['', Validators.required],

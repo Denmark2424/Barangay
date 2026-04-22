@@ -44,7 +44,6 @@
               <th>Guardian Name</th>
               <th>Baby Name</th>
               <th>Contact Number</th>
-              <th>Email</th>
               <th *ngIf="viewFilter === 'pending'">Actions</th>
               <th *ngIf="viewFilter === 'history'">Status</th>
             </tr>
@@ -54,7 +53,6 @@
               <td class="guardian-name"><strong>{{ app.guardianName }}</strong></td>
               <td class="baby-name">{{ app.babyName }}</td>
               <td class="contact-num">{{ app.guardianContact }}</td>
-              <td class="email-info">{{ app.guardianEmail }}</td>
               <td *ngIf="viewFilter === 'pending'">
                 <div class="action-buttons">
                   <button class="approve-btn" (click)="onApprove(app.id)">
