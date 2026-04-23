@@ -50,8 +50,8 @@
 
 .stat-card {
   background: white;
-  border-radius: 24px;
-  padding: 2rem;
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
@@ -67,28 +67,28 @@
 }
 
 .stat-icon {
-  font-size: 2.8rem;
-  margin-bottom: 1.5rem;
-  width: 64px;
-  height: 64px;
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #f8fafc;
 }
 
 .stat-info h3 {
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 0.75rem;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
   font-weight: 700;
 }
 
 .stat-value {
-  font-size: 3rem;
+  font-size: 2.2rem;
   font-weight: 800;
   color: #0f172a;
   margin: 0;
@@ -96,8 +96,8 @@
 }
 
 .stat-link {
-  margin-top: 2rem;
-  font-size: 0.9rem;
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--primary-teal);
   text-decoration: none;
@@ -122,8 +122,8 @@
 .stat-card.total .stat-icon { background: #eff6ff; }
 
 .stat-label {
-  margin-top: 2rem;
-  font-size: 0.85rem;
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #94a3b8;
 }
@@ -151,13 +151,13 @@
 .action-btn {
   background: white;
   border: 2px solid #f1f5f9;
-  padding: 1.5rem;
+  padding: 1rem 1.25rem;
   border-radius: 16px;
   text-align: left;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  font-size: 1.05rem;
+  gap: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #1e293b;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -174,14 +174,14 @@
 }
 
 .btn-icon {
-  font-size: 2rem;
+  font-size: 1.6rem;
   background: #f8fafc;
-  width: 50px;
-  height: 50px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 10px;
   transition: all 0.2s;
 }
 

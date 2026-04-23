@@ -47,8 +47,13 @@
     <!-- Records Table -->
     <section class="activity-section">
       <div class="section-header">
-        <h2>Patient Records</h2>
-        <span class="badge" *ngIf="totalItems > 0">{{ totalItems }} records found</span>
+        <div class="header-info">
+          <h2>Patient Records</h2>
+          <span class="badge" *ngIf="totalItems > 0">{{ totalItems }} records found</span>
+        </div>
+        <button class="create-notification-btn" (click)="onCreateNotification()">
+          <span class="icon">+</span> Schedule Dose
+        </button>
       </div>
 
       <div class="table-container card">
@@ -87,9 +92,8 @@
         <!-- Pagination Controls -->
         <div class="pagination-hub" *ngIf="totalItems > 0">
           <div class="pagination-info">
-            Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> -
-            <strong>{{ mathMin(currentPage * pageSize, totalItems) }}</strong> of
-            <strong>{{ totalItems }}</strong> records
+            Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> - <strong>{{ mathMin(currentPage * pageSize,
+              totalItems) }}</strong> of <strong>{{ totalItems }}</strong> records
           </div>
           <div class="pagination-controls">
             <button class="pag-btn" [disabled]="currentPage === 1" (click)="prevPage()">
@@ -104,5 +108,71 @@
         </div>
       </div>
     </section>
+  </div>
+</div>
+
+<!-- Premium SMS Notification Modal -->
+<div class="modal-overlay fade-in" *ngIf="isCreateModalOpen" (click)="closeModals()">
+  <div class="modal-content card sms-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <h2>Schedule Next Dose</h2>
+        <p>Set appointment details and notify parents via SMS</p>
+      </div>
+      <button class="close-modal" (click)="closeModals()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Appointment Preferences Section -->
+      <div class="appointment-preferences-header">
+        <h3><span class="icon">📅</span> Immunization Schedule</h3>
+      </div>
+
+      <div class="form-grid-three">
+        <div class="form-group">
+          <label>DATE</label>
+          <input type="date" [(ngModel)]="newNotification.preferredDate">
+        </div>
+        <div class="form-group">
+          <label>TIME</label>
+          <input type="time" [(ngModel)]="newNotification.preferredTime">
+        </div>
+        <div class="form-group">
+          <label>CLINIC</label>
+          <select [(ngModel)]="newNotification.preferredClinic">
+            <option value="Katipunan Clinic">Katipunan Clinic</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Target Selection Section -->
+      <div class="form-group" style="margin-top: 1rem;">
+        <div class="label-row">
+          <label><span class="icon">📍</span> Target Status</label>
+          <div class="bulk-actions">
+            <button (click)="selectAllStatuses()">Select All</button>
+            <span class="divider">|</span>
+            <button (click)="deselectAllStatuses()">Deselect All</button>
+          </div>
+        </div>
+        <div class="barangay-grid">
+          <label class="checkbox-item" *ngFor="let s of targetStatuses"
+            [class.selected]="newNotification.targets.includes(s)">
+            <input type="checkbox" [checked]="newNotification.targets.includes(s)" (change)="toggleTarget(s)">
+            <span>{{ s }}</span>
+          </label>
+        </div>
+        <div class="selection-summary">
+          <span class="icon">✅</span> {{ newNotification.targets.length }} status(es) selected
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="closeModals()">Cancel</button>
+      <button class="save-draft-btn" (click)="sendNotification()">
+        <span class="icon">✈️</span> Send
+      </button>
+    </div>
   </div>
 </div>

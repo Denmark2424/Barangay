@@ -15,8 +15,8 @@ import { map } from 'rxjs/operators';
 export class HomeComponent {
   pendingCount$: Observable<number>;
   approvedCount$: Observable<number>;
-  rejectedCount$: Observable<number>;
   totalCount$: Observable<number>;
+  smsSentCount: number = 0;
   recentRecords$: Observable<Appointment[]>;
   today: Date = new Date();
 
@@ -29,12 +29,14 @@ export class HomeComponent {
     this.approvedCount$ = apps$.pipe(
       map(apps => apps.filter(a => a.reviewed && a.status !== 'Rejected').length)
     );
-    this.rejectedCount$ = apps$.pipe(
-      map(apps => apps.filter(a => a.status === 'Rejected').length)
-    );
     this.totalCount$ = apps$.pipe(
       map(apps => apps.length)
     );
+
+    // Load SMS sent count from localStorage
+    const savedHistory = localStorage.getItem('sms_history');
+    const history = savedHistory ? JSON.parse(savedHistory) : [];
+    this.smsSentCount = history.filter((h: any) => h.status === 'Sent').length;
 
     this.recentRecords$ = apps$.pipe(
       map(apps => {

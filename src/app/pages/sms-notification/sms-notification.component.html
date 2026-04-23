@@ -21,33 +21,37 @@
 
     <!-- SMS History & Drafts Section -->
     <section class="activity-section" *ngIf="viewMode === 'history'">
-      <!-- SENT HISTORY -->
       <div class="section-header">
         <div class="header-info">
-          <h2>Sent History</h2>
-          <span class="sub-label">{{ sentItems.length }} messages sent</span>
+          <h2>SMS History & Drafts</h2>
+          <span class="sub-label">{{ history.length }} total records</span>
         </div>
       </div>
 
       <div class="table-container card">
-        <div *ngIf="!sentItems.length" class="empty-state">
+        <div *ngIf="!history.length" class="empty-state">
           <div class="icon">✈️</div>
-          <h3>No sent messages</h3>
-          <p>Messages you send will appear here.</p>
+          <h3>No notifications yet</h3>
+          <p>Messages you create will appear here.</p>
         </div>
 
-        <table *ngIf="sentItems.length" class="sms-table">
+        <table *ngIf="history.length" class="sms-table">
           <thead>
             <tr>
+              <th>STATUS</th>
               <th>TITLE</th>
               <th>MESSAGE</th>
               <th>TARGETS</th>
               <th>RECIPIENTS</th>
-              <th>SENT DATE</th>
+              <th>DATE</th>
+              <th>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let item of paginatedHistory">
+              <td>
+                <span class="status-pill" [ngClass]="item.status.toLowerCase()">{{ item.status }}</span>
+              </td>
               <td class="item-title">{{ item.title }}</td>
               <td class="item-message">
                 <div class="message-preview">{{ item.message }}</div>
@@ -55,65 +59,16 @@
               <td>{{ item.targetBarangays }}</td>
               <td>{{ item.recipients }}</td>
               <td class="date-info">{{ item.sentAt || item.createdAt }}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Sent History Pagination -->
-        <div class="pagination-hub" *ngIf="sentItems.length > 0">
-          <div class="pagination-controls">
-            <button class="pag-btn" [disabled]="currentPageHistory === 1" (click)="prevPage('history')">
-              <span class="icon">◀</span> Previous
-            </button>
-            <span class="page-indicator">Page <strong>{{ currentPageHistory }}</strong> of <strong>{{ totalPagesHistory }}</strong></span>
-            <button class="pag-btn" [disabled]="currentPageHistory === totalPagesHistory" (click)="nextPage('history')">
-              Next <span class="icon">▶</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- DRAFTS -->
-      <div class="section-header" style="margin-top: 3rem;">
-        <div class="header-info">
-          <h2>Drafts</h2>
-          <span class="sub-label">{{ draftItems.length }} drafts saved</span>
-        </div>
-      </div>
-
-      <div class="table-container card">
-        <div *ngIf="!draftItems.length" class="empty-state">
-          <div class="icon">💾</div>
-          <h3>No drafts</h3>
-          <p>Unsent notifications will appear here.</p>
-        </div>
-
-        <table *ngIf="draftItems.length" class="sms-table">
-          <thead>
-            <tr>
-              <th>TITLE</th>
-              <th>MESSAGE</th>
-              <th>TARGETS</th>
-              <th>CREATED</th>
-              <th>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of paginatedDrafts">
-              <td class="item-title">{{ item.title }}</td>
-              <td class="item-message">
-                <div class="message-preview">{{ item.message }}</div>
-              </td>
-              <td>{{ item.targetBarangays }}</td>
-              <td class="date-info">{{ item.createdAt }}</td>
               <td>
                 <div class="table-actions">
-                  <button class="edit-btn" (click)="onEdit(item.id)">
-                    <span class="icon">✏️</span> Edit
-                  </button>
-                  <button class="send-btn" (click)="onSend(item.id)">
-                    <span class="icon">✈️</span> Send
-                  </button>
+                  <ng-container *ngIf="item.status === 'Draft'">
+                    <button class="edit-btn" (click)="onEdit(item.id)">
+                      <span class="icon">✏️</span> Edit
+                    </button>
+                    <button class="send-btn" (click)="onSend(item.id)">
+                      <span class="icon">✈️</span> Send
+                    </button>
+                  </ng-container>
                   <button class="delete-btn" (click)="onDeleteHistory(item.id)">
                     <span class="icon">🗑️</span> Delete
                   </button>
@@ -123,14 +78,14 @@
           </tbody>
         </table>
 
-        <!-- Drafts Pagination -->
-        <div class="pagination-hub" *ngIf="draftItems.length > 0">
+        <!-- SMS History Pagination -->
+        <div class="pagination-hub" *ngIf="history.length > 0">
           <div class="pagination-controls">
-            <button class="pag-btn" [disabled]="currentPageDrafts === 1" (click)="prevPage('drafts')">
+            <button class="pag-btn" [disabled]="currentPageHistory === 1" (click)="prevPage('history')">
               <span class="icon">◀</span> Previous
             </button>
-            <span class="page-indicator">Page <strong>{{ currentPageDrafts }}</strong> of <strong>{{ totalPagesDrafts }}</strong></span>
-            <button class="pag-btn" [disabled]="currentPageDrafts === totalPagesDrafts" (click)="nextPage('drafts')">
+            <span class="page-indicator">Page <strong>{{ currentPageHistory }}</strong> of <strong>{{ totalPagesHistory }}</strong></span>
+            <button class="pag-btn" [disabled]="currentPageHistory === totalPagesHistory" (click)="nextPage('history')">
               Next <span class="icon">▶</span>
             </button>
           </div>
@@ -218,21 +173,30 @@
 
     <div class="modal-body">
       <div class="form-group">
-        <label>Notification Title</label>
-        <input type="text" [(ngModel)]="newNotification.title" placeholder="">
+        <label>
+          <span class="icon">📝</span> Notification Title
+        </label>
+        <input type="text" [(ngModel)]="newNotification.title" placeholder="Enter a descriptive title">
       </div>
 
       <div class="form-group">
         <div class="label-row">
-          <label>Message</label>
-          <span class="char-count">{{ newNotification.message.length }}/160 characters</span>
+          <label>
+            <span class="icon">✉️</span> Message
+          </label>
+          <span class="char-count" [class.warning]="newNotification.message.length > 130" 
+                [class.danger]="newNotification.message.length > 150">
+            {{ newNotification.message.length }}/160 characters
+          </span>
         </div>
         <textarea rows="4" [(ngModel)]="newNotification.message" placeholder="Type your message here..."></textarea>
       </div>
 
       <div class="form-group">
         <div class="label-row">
-          <label>Target Barangays</label>
+          <label>
+            <span class="icon">📍</span> Target Barangays
+          </label>
           <div class="bulk-actions">
             <button (click)="selectAllBarangays()">Select All</button>
             <span class="divider">|</span>
@@ -247,7 +211,7 @@
           </label>
         </div>
         <div class="selection-summary">
-          {{ newNotification.targets.length }} barangay(s) selected
+          <span class="icon">✅</span> {{ newNotification.targets.length }} barangay(s) selected
         </div>
       </div>
     </div>

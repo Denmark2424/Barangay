@@ -2,7 +2,7 @@
   <!-- Header section -->
   <header class="dashboard-header">
     <div class="welcome-text">
-      <h1>Manage <span class="highlight">Appointments</span></h1>
+      <h1>Manage <span class="highlight">Immunization</span></h1>
       <p>Database of all processed immunization schedules and records.</p>
     </div>
     <div class="current-date">
@@ -29,7 +29,6 @@
             <option value="Pending">Pending</option>
             <option value="First dose">First dose</option>
             <option value="Second dose">Second dose</option>
-            <option value="Completed">Completed</option>
           </select>
         </div>
       </div>
@@ -38,7 +37,7 @@
     <!-- Table Section -->
     <section class="activity-section">
       <div class="section-header">
-        <h2>Appointment</h2>
+        <h2>Immunization</h2>
         <span class="badge" *ngIf="totalItems > 0">{{ totalItems }} records found</span>
       </div>
 
@@ -93,15 +92,16 @@
         <!-- Pagination Controls -->
         <div class="pagination-hub" *ngIf="totalItems > 0">
           <div class="pagination-info">
-            Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> - 
-            <strong>{{ mathMin(currentPage * pageSize, totalItems) }}</strong> of 
+            Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> -
+            <strong>{{ mathMin(currentPage * pageSize, totalItems) }}</strong> of
             <strong>{{ totalItems }}</strong> records
           </div>
           <div class="pagination-controls">
             <button class="pag-btn" [disabled]="currentPage === 1" (click)="prevPage()">
               <span class="icon">◀</span> Previous
             </button>
-            <span class="page-indicator">Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages }}</strong></span>
+            <span class="page-indicator">Page <strong>{{ currentPage }}</strong> of <strong>{{ totalPages
+                }}</strong></span>
             <button class="pag-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
               Next <span class="icon">▶</span>
             </button>

@@ -65,22 +65,9 @@ export class SmsNotificationComponent implements OnInit {
 
   // --- PAGINATED GETTERS ---
 
-  get sentItems(): SMSHistory[] {
-    return this.history.filter(h => h.status === 'Sent');
-  }
-
-  get draftItems(): SMSHistory[] {
-    return this.history.filter(h => h.status === 'Draft');
-  }
-
   get paginatedHistory(): SMSHistory[] {
     const start = (this.currentPageHistory - 1) * this.pageSize;
-    return this.sentItems.slice(start, start + this.pageSize);
-  }
-
-  get paginatedDrafts(): SMSHistory[] {
-    const start = (this.currentPageDrafts - 1) * this.pageSize;
-    return this.draftItems.slice(start, start + this.pageSize);
+    return this.history.slice(start, start + this.pageSize);
   }
 
   get filteredContacts(): Contact[] {
@@ -98,11 +85,7 @@ export class SmsNotificationComponent implements OnInit {
   // --- TOTAL PAGES HELPERS ---
 
   get totalPagesHistory(): number {
-    return Math.ceil(this.sentItems.length / this.pageSize) || 1;
-  }
-
-  get totalPagesDrafts(): number {
-    return Math.ceil(this.draftItems.length / this.pageSize) || 1;
+    return Math.ceil(this.history.length / this.pageSize) || 1;
   }
 
   get totalPagesContacts(): number {
@@ -129,15 +112,13 @@ export class SmsNotificationComponent implements OnInit {
 
   // --- PAGINATION ACTIONS ---
 
-  nextPage(type: 'history' | 'drafts' | 'contacts') {
+  nextPage(type: 'history' | 'contacts') {
     if (type === 'history' && this.currentPageHistory < this.totalPagesHistory) this.currentPageHistory++;
-    if (type === 'drafts' && this.currentPageDrafts < this.totalPagesDrafts) this.currentPageDrafts++;
     if (type === 'contacts' && this.currentPageContacts < this.totalPagesContacts) this.currentPageContacts++;
   }
 
-  prevPage(type: 'history' | 'drafts' | 'contacts') {
+  prevPage(type: 'history' | 'contacts') {
     if (type === 'history' && this.currentPageHistory > 1) this.currentPageHistory--;
-    if (type === 'drafts' && this.currentPageDrafts > 1) this.currentPageDrafts--;
     if (type === 'contacts' && this.currentPageContacts > 1) this.currentPageContacts--;
   }
 

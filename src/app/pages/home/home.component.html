@@ -32,12 +32,12 @@
     </div>
 
     <div class="stat-card rejected">
-      <div class="stat-icon">❌</div>
+      <div class="stat-icon">💬</div>
       <div class="stat-info">
-        <h3>Total Rejected</h3>
-        <p class="stat-value">{{ rejectedCount$ | async }}</p>
+        <h3>SMS Sent</h3>
+        <p class="stat-value">{{ smsSentCount }}</p>
       </div>
-      <a routerLink="/pending-appointment" [queryParams]="{view: 'history'}" class="stat-link">View history →</a>
+      <a routerLink="/sms-notification" class="stat-link">View history →</a>
     </div>
 
     <div class="stat-card total">
@@ -62,7 +62,15 @@
         </button>
         <button routerLink="/manage-appointment" class="action-btn">
           <span class="btn-icon">📁</span>
-          Manage Appointment
+          Manage Immunization
+        </button>
+        <button routerLink="/immunization-records" class="action-btn">
+          <span class="btn-icon">📒</span>
+          Immunization Records
+        </button>
+        <button routerLink="/sms-notification" class="action-btn">
+          <span class="btn-icon">💬</span>
+          SMS Notification
         </button>
       </div>
     </section>
