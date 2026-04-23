@@ -67,9 +67,9 @@ export class PendingAppointmentComponent implements OnInit {
         if (search) {
           const s = search.toLowerCase();
           filtered = filtered.filter(a => 
-            a.babyName.toLowerCase().includes(s) || 
-            a.guardianName.toLowerCase().includes(s) ||
-            a.vaccineRequested?.toLowerCase().includes(s)
+            a.babyName.toLowerCase().startsWith(s) || 
+            a.guardianName.toLowerCase().startsWith(s) ||
+            a.vaccineRequested?.toLowerCase().startsWith(s)
           );
         }
         this.totalItems = filtered.length;

@@ -46,8 +46,8 @@ export class ManageAppointmentComponent implements OnInit {
         if (search) {
           const s = search.toLowerCase();
           filtered = filtered.filter(a => 
-            a.babyName.toLowerCase().includes(s) || 
-            a.guardianName.toLowerCase().includes(s)
+            a.babyName.toLowerCase().startsWith(s) || 
+            a.guardianName.toLowerCase().startsWith(s)
           );
         }
         
